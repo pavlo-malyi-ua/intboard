@@ -1,44 +1,51 @@
-const canvas = document.getElementById("board");
-const ctx = canvas.getContext("2d");
-
-const classList = document.getElementById("classList");
-const tabs = document.getElementById("tabs");
-
-let school = {
-    "5-А": ["Урок 1"],
+const school = {
+    "5-А": {
+        "Математика": [
+            "Дроби",
+            "Рівняння"
+        ]
+    }
 };
 
 let currentClass = "5-А";
-let currentTopic = "Урок 1";
+let currentSubject = "Математика";
+let currentTopic = "Дроби";
 
-/* ===== КЛАСИ ===== */
+const classList = document.getElementById("classList");
+const subjectsDiv = document.getElementById("subjects");
+const topicsDiv = document.getElementById("topics");
+
+/* Класи */
 
 function renderClasses(){
 
     classList.innerHTML = "";
 
-    Object.keys(school).forEach(name => {
+    Object.keys(school).forEach(cls =>{
 
-        const div = document.createElement("div");
+        const el = document.createElement("div");
 
-        div.className =
-            name === currentClass
+        el.className =
+            cls === currentClass
             ? "class-item active"
             : "class-item";
 
-        div.innerText = name;
+        el.innerText = cls;
 
-        div.onclick = () => {
+        el.onclick = ()=>{
 
-            currentClass = name;
-            currentTopic = school[name][0];
+            currentClass = cls;
 
-            renderClasses();
-            renderTabs();
+            currentSubject =
+                Object.keys(school[cls])[0];
+
+            currentTopic =
+                school[cls][currentSubject][0];
+
+            renderAll();
         };
 
-        classList.appendChild(div);
-
+        classList.appendChild(el);
     });
 }
 
@@ -48,92 +55,157 @@ function addClass(){
 
     if(!name) return;
 
-    school[name] = ["Урок 1"];
+    school[name] = {
+        "Новий предмет":[
+            "Нова тема"
+        ]
+    };
 
-    renderClasses();
+    renderAll();
 }
 
-/* ===== ТЕМИ ===== */
+/* Предмети */
 
-function renderTabs(){
+function renderSubjects(){
 
-    tabs.innerHTML = "";
+    subjectsDiv.innerHTML = "";
 
-    school[currentClass].forEach(topic => {
+    Object.keys(
+        school[currentClass]
+    ).forEach(subject =>{
 
-        const div = document.createElement("div");
+        const el =
+            document.createElement("div");
 
-        div.className =
+        el.className =
+            subject === currentSubject
+            ? "tab active"
+            : "tab";
+
+        el.innerText = subject;
+
+        el.onclick = ()=>{
+
+            currentSubject = subject;
+
+            currentTopic =
+            school[currentClass][subject][0];
+
+            renderAll();
+        };
+
+        subjectsDiv.appendChild(el);
+    });
+}
+
+function addSubject(){
+
+    const name =
+        prompt("Назва предмета");
+
+    if(!name) return;
+
+    school[currentClass][name] = [
+        "Нова тема"
+    ];
+
+    renderAll();
+}
+
+/* Теми */
+
+function renderTopics(){
+
+    topicsDiv.innerHTML = "";
+
+    school[currentClass][currentSubject]
+    .forEach(topic=>{
+
+        const el =
+            document.createElement("div");
+
+        el.className =
             topic === currentTopic
             ? "tab active"
             : "tab";
 
-        div.innerText = topic;
+        el.innerText = topic;
 
-        div.onclick = () => {
+        el.onclick = ()=>{
 
             currentTopic = topic;
-            renderTabs();
+
+            renderTopics();
         };
 
-        tabs.appendChild(div);
-
+        topicsDiv.appendChild(el);
     });
 }
 
 function addTopic(){
 
-    const topic = prompt("Назва теми");
+    const name =
+        prompt("Назва теми");
 
-    if(!topic) return;
+    if(!name) return;
 
-    school[currentClass].push(topic);
+    school[currentClass]
+    [currentSubject]
+    .push(name);
 
-    renderTabs();
+    renderTopics();
 }
 
-/* ===== ДОШКА ===== */
+/* Дошка */
+
+const canvas =
+document.getElementById("board");
+
+const ctx =
+canvas.getContext("2d");
 
 function resizeCanvas(){
 
-    canvas.width = window.innerWidth - 250;
+    canvas.width =
+        window.innerWidth - 260;
+
     canvas.height =
         window.innerHeight -
-        document.querySelector(".topbar").offsetHeight -
-        document.querySelector(".toolbar").offsetHeight;
-
+        140;
 }
 
 resizeCanvas();
 
-window.addEventListener("resize", resizeCanvas);
+window.addEventListener(
+    "resize",
+    resizeCanvas
+);
 
 let drawing = false;
 
-canvas.addEventListener("mousedown", () => {
-    drawing = true;
-});
+canvas.addEventListener(
+"mousedown",
+()=>drawing = true);
 
-canvas.addEventListener("mouseup", () => {
-
+canvas.addEventListener(
+"mouseup",
+()=>{
     drawing = false;
     ctx.beginPath();
 });
 
-canvas.addEventListener("mousemove", draw);
-
-function draw(e){
+canvas.addEventListener(
+"mousemove",
+e=>{
 
     if(!drawing) return;
 
-    const color =
-        document.getElementById("color").value;
+    ctx.strokeStyle =
+    document.getElementById("color").value;
 
-    const size =
-        document.getElementById("size").value;
+    ctx.lineWidth =
+    document.getElementById("size").value;
 
-    ctx.strokeStyle = color;
-    ctx.lineWidth = size;
     ctx.lineCap = "round";
 
     ctx.lineTo(
@@ -149,7 +221,7 @@ function draw(e){
         e.offsetX,
         e.offsetY
     );
-}
+});
 
 function clearBoard(){
 
@@ -167,10 +239,7 @@ function saveBoard(){
         document.createElement("a");
 
     link.download =
-        currentClass +
-        "-" +
-        currentTopic +
-        ".png";
+        `${currentClass}-${currentSubject}-${currentTopic}.png`;
 
     link.href =
         canvas.toDataURL();
@@ -178,5 +247,13 @@ function saveBoard(){
     link.click();
 }
 
-renderClasses();
-renderTabs();
+/* Рендер */
+
+function renderAll(){
+
+    renderClasses();
+    renderSubjects();
+    renderTopics();
+}
+
+renderAll();
