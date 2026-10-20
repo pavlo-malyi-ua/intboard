@@ -9,81 +9,154 @@
 <style>
 body{
     margin:0;
-    text-align:center;
     font-family:Arial,sans-serif;
-    background:#f4f7fb;
+    background:#f2f4f8;
 }
 
-header{
+.toolbar{
     background:#2563eb;
-    color:white;
-    padding:15px;
+    padding:10px;
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    align-items:center;
+}
+
+.toolbar button{
+    padding:8px 15px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
 }
 
 canvas{
-    border:2px solid #333;
-    margin:20px auto;
-    display:block;
     background:white;
+    display:block;
+    margin:auto;
+    touch-action:none;
 }
 
-button{
-    padding:10px 20px;
-    margin:10px;
-    border:none;
-    border-radius:8px;
-    background:#2563eb;
+label{
     color:white;
-    cursor:pointer;
 }
 </style>
 </head>
 
 <body>
 
-<header>
-    <h1>📚 IntBoard</h1>
-    <p>Онлайн дошка для вчителя</p>
-</header>
+<div class="toolbar">
 
-<button onclick="clearBoard()">Очистити дошку</button>
+<label>Колір:</label>
+<input type="color" id="color" value="#000000">
 
-<canvas id="board" width="1000" height="600"></canvas>
+<label>Товщина:</label>
+<input type="range" id="size" min="1" max="30" value="3">
+
+<button onclick="eraser()">Гумка</button>
+
+<button onclick="clearBoard()">Очистити</button>
+
+<button onclick="saveBoard()">Зберегти PNG</button>
+
+</div>
+
+<canvas id="board"></canvas>
 
 <script>
+
 const canvas = document.getElementById("board");
 const ctx = canvas.getContext("2d");
 
+function resizeCanvas(){
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight - 60;
+}
+
+resizeCanvas();
+
+window.addEventListener("resize", resizeCanvas);
+
 let drawing = false;
 
-canvas.addEventListener("mousedown", () => {
-    drawing = true;
-});
+let colorPicker = document.getElementById("color");
+let sizePicker = document.getElementById("size");
 
-canvas.addEventListener("mouseup", () => {
+function startDraw(){
+    drawing = true;
+}
+
+function stopDraw(){
     drawing = false;
     ctx.beginPath();
-});
+}
 
-canvas.addEventListener("mousemove", draw);
+function draw(x,y){
 
-function draw(e){
     if(!drawing) return;
 
-    ctx.lineWidth = 3;
+    ctx.lineWidth = sizePicker.value;
     ctx.lineCap = "round";
-    ctx.strokeStyle = "black";
+    ctx.strokeStyle = colorPicker.value;
 
-    ctx.lineTo(e.offsetX, e.offsetY);
+    ctx.lineTo(x,y);
     ctx.stroke();
 
     ctx.beginPath();
-    ctx.moveTo(e.offsetX, e.offsetY);
+    ctx.moveTo(x,y);
 }
+
+/* Мишка */
+
+canvas.addEventListener("mousedown", startDraw);
+canvas.addEventListener("mouseup", stopDraw);
+canvas.addEventListener("mouseout", stopDraw);
+
+canvas.addEventListener("mousemove",(e)=>{
+    draw(e.offsetX,e.offsetY);
+});
+
+/* Телефон */
+
+canvas.addEventListener("touchstart",(e)=>{
+    drawing = true;
+});
+
+canvas.addEventListener("touchend",(e)=>{
+    stopDraw();
+});
+
+canvas.addEventListener("touchmove",(e)=>{
+
+    e.preventDefault();
+
+    const rect = canvas.getBoundingClientRect();
+
+    const x = e.touches[0].clientX - rect.left;
+    const y = e.touches[0].clientY - rect.top;
+
+    draw(x,y);
+
+});
 
 function clearBoard(){
     ctx.clearRect(0,0,canvas.width,canvas.height);
 }
+
+function eraser(){
+    colorPicker.value = "#FFFFFF";
+}
+
+function saveBoard(){
+
+    const link = document.createElement("a");
+
+    link.download = "intboard.png";
+
+    link.href = canvas.toDataURL();
+
+    link.click();
+}
+
 </script>
 
 </body>
