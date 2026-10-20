@@ -1,12 +1,107 @@
 const canvas = document.getElementById("board");
 const ctx = canvas.getContext("2d");
 
-const colorPicker = document.getElementById("color");
-const sizePicker = document.getElementById("size");
+const classList = document.getElementById("classList");
+const tabs = document.getElementById("tabs");
 
-function resizeCanvas() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight - 60;
+let school = {
+    "5-А": ["Урок 1"],
+};
+
+let currentClass = "5-А";
+let currentTopic = "Урок 1";
+
+/* ===== КЛАСИ ===== */
+
+function renderClasses(){
+
+    classList.innerHTML = "";
+
+    Object.keys(school).forEach(name => {
+
+        const div = document.createElement("div");
+
+        div.className =
+            name === currentClass
+            ? "class-item active"
+            : "class-item";
+
+        div.innerText = name;
+
+        div.onclick = () => {
+
+            currentClass = name;
+            currentTopic = school[name][0];
+
+            renderClasses();
+            renderTabs();
+        };
+
+        classList.appendChild(div);
+
+    });
+}
+
+function addClass(){
+
+    const name = prompt("Назва класу");
+
+    if(!name) return;
+
+    school[name] = ["Урок 1"];
+
+    renderClasses();
+}
+
+/* ===== ТЕМИ ===== */
+
+function renderTabs(){
+
+    tabs.innerHTML = "";
+
+    school[currentClass].forEach(topic => {
+
+        const div = document.createElement("div");
+
+        div.className =
+            topic === currentTopic
+            ? "tab active"
+            : "tab";
+
+        div.innerText = topic;
+
+        div.onclick = () => {
+
+            currentTopic = topic;
+            renderTabs();
+        };
+
+        tabs.appendChild(div);
+
+    });
+}
+
+function addTopic(){
+
+    const topic = prompt("Назва теми");
+
+    if(!topic) return;
+
+    school[currentClass].push(topic);
+
+    renderTabs();
+}
+
+/* ===== ДОШКА ===== */
+
+function resizeCanvas(){
+
+    canvas.width = window.innerWidth - 250;
+    canvas.height =
+        window.innerHeight -
+        document.querySelector(".topbar").offsetHeight -
+        document.querySelector(".toolbar").offsetHeight;
+
 }
 
 resizeCanvas();
@@ -15,76 +110,48 @@ window.addEventListener("resize", resizeCanvas);
 
 let drawing = false;
 
-function startDrawing() {
+canvas.addEventListener("mousedown", () => {
     drawing = true;
-}
+});
 
-function stopDrawing() {
+canvas.addEventListener("mouseup", () => {
+
     drawing = false;
     ctx.beginPath();
-}
+});
 
-function draw(x, y) {
+canvas.addEventListener("mousemove", draw);
 
-    if (!drawing) return;
+function draw(e){
 
-    ctx.lineWidth = sizePicker.value;
+    if(!drawing) return;
+
+    const color =
+        document.getElementById("color").value;
+
+    const size =
+        document.getElementById("size").value;
+
+    ctx.strokeStyle = color;
+    ctx.lineWidth = size;
     ctx.lineCap = "round";
-    ctx.strokeStyle = colorPicker.value;
 
-    ctx.lineTo(x, y);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-}
-
-/* ПК */
-
-canvas.addEventListener("mousedown", startDrawing);
-
-canvas.addEventListener("mouseup", stopDrawing);
-
-canvas.addEventListener("mouseout", stopDrawing);
-
-canvas.addEventListener("mousemove", (e) => {
-
-    draw(
+    ctx.lineTo(
         e.offsetX,
         e.offsetY
     );
 
-});
+    ctx.stroke();
 
-/* Телефон */
+    ctx.beginPath();
 
-canvas.addEventListener("touchstart", () => {
-    drawing = true;
-});
+    ctx.moveTo(
+        e.offsetX,
+        e.offsetY
+    );
+}
 
-canvas.addEventListener("touchend", stopDrawing);
-
-canvas.addEventListener("touchmove", (e) => {
-
-    e.preventDefault();
-
-    const rect = canvas.getBoundingClientRect();
-
-    const x =
-        e.touches[0].clientX -
-        rect.left;
-
-    const y =
-        e.touches[0].clientY -
-        rect.top;
-
-    draw(x, y);
-
-});
-
-/* Функції */
-
-function clearBoard() {
+function clearBoard(){
 
     ctx.clearRect(
         0,
@@ -94,20 +161,22 @@ function clearBoard() {
     );
 }
 
-function eraser() {
-
-    colorPicker.value = "#ffffff";
-}
-
-function saveBoard() {
+function saveBoard(){
 
     const link =
         document.createElement("a");
 
-    link.download = "intboard.png";
+    link.download =
+        currentClass +
+        "-" +
+        currentTopic +
+        ".png";
 
     link.href =
-        canvas.toDataURL("image/png");
+        canvas.toDataURL();
 
     link.click();
 }
+
+renderClasses();
+renderTabs();
