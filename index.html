@@ -1,113 +1,59 @@
-const canvas = document.getElementById("board");
-const ctx = canvas.getContext("2d");
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IntBoard</title>
 
-const colorPicker = document.getElementById("color");
-const sizePicker = document.getElementById("size");
+<link rel="stylesheet" href="style.css">
+</head>
 
-function resizeCanvas() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight - 60;
-}
+<body>
 
-resizeCanvas();
+<div class="sidebar">
 
-window.addEventListener("resize", resizeCanvas);
+    <div class="logo">
+        📚 IntBoard
+    </div>
 
-let drawing = false;
+    <div class="sidebar-header">
+        <span>Класи</span>
+        <button onclick="addClass()">+</button>
+    </div>
 
-function startDrawing() {
-    drawing = true;
-}
+    <div id="classList"></div>
 
-function stopDrawing() {
-    drawing = false;
-    ctx.beginPath();
-}
+</div>
 
-function draw(x, y) {
+<div class="workspace">
 
-    if (!drawing) return;
+    <div class="topbar">
 
-    ctx.lineWidth = sizePicker.value;
-    ctx.lineCap = "round";
-    ctx.strokeStyle = colorPicker.value;
+        <div id="tabs"></div>
 
-    ctx.lineTo(x, y);
-    ctx.stroke();
+        <button class="new-tab" onclick="addTopic()">
+            + Тема
+        </button>
 
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-}
+    </div>
 
-/* ПК */
+    <div class="toolbar">
 
-canvas.addEventListener("mousedown", startDrawing);
+        <input type="color" id="color" value="#000000">
 
-canvas.addEventListener("mouseup", stopDrawing);
+        <input type="range" id="size" min="1" max="20" value="3">
 
-canvas.addEventListener("mouseout", stopDrawing);
+        <button onclick="clearBoard()">Очистити</button>
 
-canvas.addEventListener("mousemove", (e) => {
+        <button onclick="saveBoard()">PNG</button>
 
-    draw(
-        e.offsetX,
-        e.offsetY
-    );
+    </div>
 
-});
+    <canvas id="board"></canvas>
 
-/* Телефон */
+</div>
 
-canvas.addEventListener("touchstart", () => {
-    drawing = true;
-});
+<script src="script.js"></script>
 
-canvas.addEventListener("touchend", stopDrawing);
-
-canvas.addEventListener("touchmove", (e) => {
-
-    e.preventDefault();
-
-    const rect = canvas.getBoundingClientRect();
-
-    const x =
-        e.touches[0].clientX -
-        rect.left;
-
-    const y =
-        e.touches[0].clientY -
-        rect.top;
-
-    draw(x, y);
-
-});
-
-/* Функції */
-
-function clearBoard() {
-
-    ctx.clearRect(
-        0,
-        0,
-        canvas.width,
-        canvas.height
-    );
-}
-
-function eraser() {
-
-    colorPicker.value = "#ffffff";
-}
-
-function saveBoard() {
-
-    const link =
-        document.createElement("a");
-
-    link.download = "intboard.png";
-
-    link.href =
-        canvas.toDataURL("image/png");
-
-    link.click();
-}
+</body>
+</html>
