@@ -1,163 +1,27 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>IntBoard</title>
-
-<style>
-body{
-    margin:0;
-    font-family:Arial,sans-serif;
-    background:#f2f4f8;
-}
-
-.toolbar{
-    background:#2563eb;
-    padding:10px;
-    display:flex;
-    gap:10px;
-    flex-wrap:wrap;
-    align-items:center;
-}
-
-.toolbar button{
-    padding:8px 15px;
-    border:none;
-    border-radius:8px;
-    cursor:pointer;
-}
-
-canvas{
-    background:white;
-    display:block;
-    margin:auto;
-    touch-action:none;
-}
-
-label{
-    color:white;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IntBoard</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
 <div class="toolbar">
-
-<label>Колір:</label>
-<input type="color" id="color" value="#000000">
-
-<label>Товщина:</label>
-<input type="range" id="size" min="1" max="30" value="3">
-
-<button onclick="eraser()">Гумка</button>
-
-<button onclick="clearBoard()">Очистити</button>
-
-<button onclick="saveBoard()">Зберегти PNG</button>
+    <input type="color" id="color" value="#000000">
+    <input type="range" id="size" min="1" max="50" value="3">
+    <button id="pencilBtn">✏️ Олівець</button>
+    <button onclick="eraser()">🧽 Гумка</button>
+    <button onclick="clearBoard()">🗑️ Очистити</button>
+    <button onclick="saveBoard()">💾 PNG</button>
 
 </div>
 
 <canvas id="board"></canvas>
 
-<script>
-
-const canvas = document.getElementById("board");
-const ctx = canvas.getContext("2d");
-
-function resizeCanvas(){
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight - 60;
-}
-
-resizeCanvas();
-
-window.addEventListener("resize", resizeCanvas);
-
-let drawing = false;
-
-let colorPicker = document.getElementById("color");
-let sizePicker = document.getElementById("size");
-
-function startDraw(){
-    drawing = true;
-}
-
-function stopDraw(){
-    drawing = false;
-    ctx.beginPath();
-}
-
-function draw(x,y){
-
-    if(!drawing) return;
-
-    ctx.lineWidth = sizePicker.value;
-    ctx.lineCap = "round";
-    ctx.strokeStyle = colorPicker.value;
-
-    ctx.lineTo(x,y);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(x,y);
-}
-
-/* Мишка */
-
-canvas.addEventListener("mousedown", startDraw);
-canvas.addEventListener("mouseup", stopDraw);
-canvas.addEventListener("mouseout", stopDraw);
-
-canvas.addEventListener("mousemove",(e)=>{
-    draw(e.offsetX,e.offsetY);
-});
-
-/* Телефон */
-
-canvas.addEventListener("touchstart",(e)=>{
-    drawing = true;
-});
-
-canvas.addEventListener("touchend",(e)=>{
-    stopDraw();
-});
-
-canvas.addEventListener("touchmove",(e)=>{
-
-    e.preventDefault();
-
-    const rect = canvas.getBoundingClientRect();
-
-    const x = e.touches[0].clientX - rect.left;
-    const y = e.touches[0].clientY - rect.top;
-
-    draw(x,y);
-
-});
-
-function clearBoard(){
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-}
-
-function eraser(){
-    colorPicker.value = "#FFFFFF";
-}
-
-function saveBoard(){
-
-    const link = document.createElement("a");
-
-    link.download = "intboard.png";
-
-    link.href = canvas.toDataURL();
-
-    link.click();
-}
-
-</script>
+<script src="script.js"></script>
 
 </body>
 </html>
