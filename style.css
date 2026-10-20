@@ -1,1 +1,36 @@
+*{
+    box-sizing:border-box;
+}
 
+body{
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:#f3f4f6;
+}
+
+.toolbar{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    align-items:center;
+
+    padding:10px;
+    background:#2563eb;
+}
+
+.toolbar button{
+    border:none;
+    padding:10px 15px;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+.toolbar button:hover{
+    opacity:0.9;
+}
+
+canvas{
+    display:block;
+    background:white;
+    cursor:crosshair;
+}
