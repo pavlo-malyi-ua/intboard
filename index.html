@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>IntBoard</title>
 
 <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
 <div class="sidebar">
@@ -16,7 +16,7 @@
         📚 IntBoard
     </div>
 
-    <div class="sidebar-header">
+    <div class="panel-title">
         <span>Класи</span>
         <button onclick="addClass()">+</button>
     </div>
@@ -27,11 +27,21 @@
 
 <div class="workspace">
 
-    <div class="topbar">
+    <div class="subject-bar">
 
-        <div id="tabs"></div>
+        <div id="subjects"></div>
 
-        <button class="new-tab" onclick="addTopic()">
+        <button onclick="addSubject()">
+            + Предмет
+        </button>
+
+    </div>
+
+    <div class="topic-bar">
+
+        <div id="topics"></div>
+
+        <button onclick="addTopic()">
             + Тема
         </button>
 
@@ -39,7 +49,7 @@
 
     <div class="toolbar">
 
-        <input type="color" id="color" value="#000000">
+        <input type="color" id="color">
 
         <input type="range" id="size" min="1" max="20" value="3">
 
@@ -54,6 +64,5 @@
 </div>
 
 <script src="script.js"></script>
-
 </body>
 </html>
